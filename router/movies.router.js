@@ -140,10 +140,26 @@ moviesRouter.post('/', (req,res,next) => {
             error.status = 500;
             return next(error);
         });
-   
-    
+      
+});
 
-   
+moviesRouter.put('/:id', (req, res, next) => {
+    const id = req.params.id;
+    
+    Movie.findByIdAndUpdate(id, {$set: req.body}, {new:true})
+        .then(movie => {
+            if (!movie){
+                error = new Error('Pelicula no encontrada');
+                error.status = 404;
+                return next(error);
+            }
+            return res.status(200).json(movie)
+        })
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
 });
 
 module.exports = moviesRouter;

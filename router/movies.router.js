@@ -50,4 +50,24 @@ moviesRouter.get('/titulo/:titulo', (req,res,next) => {
         });
 });
 
+moviesRouter.get('/genero/:genero', (req,res,next) =>{
+    const genero = req.params.genero;
+
+    return Movie.find({genre:genero})
+        .then(movies =>{
+            if (!movies){
+                error = new Error(`Peliculas del genero ${titulo} no encontradas`);
+                error.status=404;
+                return next(error);
+            }
+            return res.status(200).json(movies);
+        })
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+
+});
+
 module.exports = moviesRouter;

@@ -2,13 +2,25 @@ const express = require('express');
 const db = require('./db');
 // const PORT = 3000;
 const server = express();
-require('dotenv').config();
+const moviesRouter=require('./router/movies.router');
 
+require('dotenv').config();
 const PORT = process.env.PORT;
 
 //Añadimos los middlewares para poder leer los body de las requests
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
+
+server.get('/',(_req,res)=>res.status(200).send('Server is up & running'));
+
+server.use('/movies',moviesRouter);
+
+// Uso el guion bajo para indicar que los parametros no se usan dentro del errorHandler
+server.use((err, _req, res, _next) => {
+    return res
+        .status(err.status || 500)
+        .json(err.message || 'Error inesperado en servidor');
+});
 
 
 db.connectDB().then(()=> {

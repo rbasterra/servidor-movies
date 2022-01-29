@@ -111,4 +111,39 @@ moviesRouter.get('/fecha/:anno', (req,res,next) =>{
 
 });
 
+moviesRouter.post('/', (req,res,next) => {
+   
+   return Movie.find({title: req.body.title})
+        .then(movies =>{
+            if (movies.length > 0){
+                error = new Error (`La pelicula ${req.body.title} ya existe en la BBDD`);
+                return next(error);
+            }
+            const newMovie = new Movie({
+                title: req.body.title,
+                director: req.body.director,
+                year: req.body.year,
+                genre: req.body.genre
+            });
+
+            newMovie.save()
+                .then(() => res.status(201).json(newMovie))
+                .catch(err =>{
+                    const error = new Error(err);
+                    error.status = 500;
+                    return next(error);
+                });
+
+        })
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+   
+    
+
+   
+});
+
 module.exports = moviesRouter;

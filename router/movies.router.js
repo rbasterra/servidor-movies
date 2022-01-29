@@ -111,4 +111,67 @@ moviesRouter.get('/fecha/:anno', (req,res,next) =>{
 
 });
 
+moviesRouter.post('/', (req,res,next) => {
+   
+   return Movie.find({title: req.body.title})
+        .then(movies =>{
+            if (movies.length > 0){
+                error = new Error (`La pelicula ${req.body.title} ya existe en la BBDD`);
+                return next(error);
+            }
+            const newMovie = new Movie({
+                title: req.body.title,
+                director: req.body.director,
+                year: req.body.year,
+                genre: req.body.genre
+            });
+
+            newMovie.save()
+                .then(() => res.status(201).json(newMovie))
+                .catch(err =>{
+                    const error = new Error(err);
+                    error.status = 500;
+                    return next(error);
+                });
+
+        })
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+      
+});
+
+moviesRouter.put('/:id', (req, res, next) => {
+    const id = req.params.id;
+    
+    Movie.findByIdAndUpdate(id, {$set: req.body}, {new:true})
+        .then(movie => {
+            if (!movie){
+                error = new Error('Pelicula no encontrada');
+                error.status = 404;
+                return next(error);
+            }
+            return res.status(200).json(movie)
+        })
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+});
+
+moviesRouter.delete('/:id', (req, res, next) =>{
+    const id = req.params.id;
+
+    Movie.findByIdAndDelete(id)
+        .then(() => res.status(200).json(`Pelicula con id ${id} eliminada`))
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+});
+
 module.exports = moviesRouter;

@@ -3,6 +3,8 @@ const db = require('./db');
 // const PORT = 3000;
 const server = express();
 const moviesRouter=require('./router/movies.router');
+const cinemaRouter=require('./router/cinema.router');
+
 
 require('dotenv').config();
 const PORT = process.env.PORT;
@@ -14,6 +16,7 @@ server.use(express.urlencoded({ extended: false }));
 server.get('/',(_req,res)=>res.status(200).send('Server is up & running'));
 
 server.use('/movies',moviesRouter);
+server.use('/cinema', cinemaRouter);
 
 // Uso el guion bajo para indicar que los parametros no se usan dentro del errorHandler
 server.use((err, _req, res, _next) => {

@@ -162,4 +162,16 @@ moviesRouter.put('/:id', (req, res, next) => {
         });
 });
 
+moviesRouter.delete('/:id', (req, res, next) =>{
+    const id = req.params.id;
+
+    Movie.findByIdAndDelete(id)
+        .then(() => res.status(200).json(`Pelicula con id ${id} eliminada`))
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+});
+
 module.exports = moviesRouter;

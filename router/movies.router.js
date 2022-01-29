@@ -2,9 +2,27 @@ const express = require('express');
 const moviesRouter = express.Router();
 const Movie = require('../models/Movie');
 
-moviesRouter.get('/', (_req,res,next)=>{
-    return Movie.find()
-        .then((movies)=>res.status(200).json(movies))
+moviesRouter.get('/', (req,res,next)=>{
+
+    let filtro={};
+
+    if (req.query.titulo){
+        filtro = {...filtro, title:req.query.titulo}
+    }
+
+    if (req.query.anno){
+        filtro = {...filtro, year: {$gte:req.query.anno}}
+    }
+
+    return Movie.find(filtro)
+        .then(movies => {
+            if (!movies.length > 0){
+                error = new Error('Pelicula(s) no encontrada(s)');
+                error.status=404;
+                return next(error);
+            }
+            return res.status(200).json(movies);
+        })
         .catch(err =>{
             error = new Error(err);
             error.status = 500;
@@ -60,6 +78,29 @@ moviesRouter.get('/genero/:genero', (req,res,next) =>{
                 error.status=404;
                 return next(error);
             }
+            return res.status(200).json(movies);
+        })
+        .catch(err =>{
+            error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
+
+});
+
+moviesRouter.get('/fecha/:anno', (req,res,next) =>{
+    const anno = Number(req.params.anno);
+
+    return Movie.find({year: {$gte: anno}})
+        .then(movies =>{
+            if (!movies){
+                error = new Error(`Peliculas a partir del año ${anno} no encontradas`);
+                error.status=404;
+                return next(error);
+            }
+
+            
+
             return res.status(200).json(movies);
         })
         .catch(err =>{

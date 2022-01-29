@@ -94,6 +94,34 @@ cinemaRouter.delete('/:id',(req,res,next) =>{
             error.status = 500;
             return next(error);
         });
+});
+
+cinemaRouter.delete('/:cinemaId/movie/:movieId', (req,res,next) =>{
+    const cinemaId = req.params.cinemaId;
+    const movieId = req.params.movieId;
+
+    return Cinema.findById(cinemaId)
+        .then(cinema =>{
+            if (!cinema || !cinema.movies.includes(movieId)){
+                error = new Error('Cine o pelicula no encontrada');
+                error.status = 404;
+                return next(error);
+            }
+
+            cinema.movies.splice(cinema.movies.indexOf(movieId),1);
+            return Cinema.findByIdAndUpdate(cinemaId, cinema, {new:true})
+                .then(cinemaUpdated => res.status(200).json(cinemaUpdated))
+                .catch(err =>{
+                    const error = new Error(err);
+                    error.status = 500;
+                    return next(error);
+                });
+        })
+        .catch(err =>{
+            const error = new Error(err);
+            error.status = 500;
+            return next(error);
+        });
 })
 
 module.exports = cinemaRouter;
